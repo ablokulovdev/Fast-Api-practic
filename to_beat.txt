@@ -7,6 +7,11 @@ METADATA -> QUERY(), PATH(), BODY()  : FAST API
 QUERY() -> pattern = Emailarni tekshirish uchun validatsiya  https://ihateregex.io/ sayt orqali email tekshiradigan regexlarni olsak buladi [^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+
 
 PAGINATION() -> Datalarni Bo'lib bo'ib berish bu PAGINATION misol bula oladi 
+formulasi   page = 3
+            limit = 10
+
+            offset = (page-1)*limit -> 2 * 10 = 20 ta skip qilib 21 datadan 10 chiqaradi
+            SQL:
+            SELECT * FROM Product LIMIT 10 OFFSET 20
 
 BODY () -> 
-    
