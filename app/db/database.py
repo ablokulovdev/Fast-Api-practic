@@ -11,9 +11,9 @@ DATABASE_URL = URL.create(
     password=core.DB_PASS,
     database=core.DB_NAME,
     host=core.DB_HOST,
-    port=core.DB_PORT,
+    port=core.DB_PORT
 )
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(url=DATABASE_URL)
 
 Localsession = sessionmaker(bind=engine)

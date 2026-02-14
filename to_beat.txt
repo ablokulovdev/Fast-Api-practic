@@ -1,0 +1,12 @@
+Annotated[TYPE, METADATA]  
+
+TYPE -> INT, FLOAT : haqiqiy typlare
+METADATA -> QUERY(), PATH(), BODY()  : FAST API
+
+
+QUERY() -> pattern = Emailarni tekshirish uchun validatsiya  https://ihateregex.io/ sayt orqali email tekshiradigan regexlarni olsak buladi [^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+
+
+PAGINATION() -> Datalarni Bo'lib bo'ib berish bu PAGINATION misol bula oladi 
+
+BODY () -> 
+    
