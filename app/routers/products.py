@@ -1,8 +1,10 @@
+from sqlalchemy import desc
 from fastapi import APIRouter, Path, Query
 from fastapi.exceptions import HTTPException
 from fastapi import status
-from typing import Annotated
+from typing import Annotated, Literal
 
+from app.schemas.product import ProductResponse,ProductListResponse
 from app.db.database import Localsession
 from app.models.products import Product
 
@@ -11,63 +13,51 @@ router = APIRouter(
     tags=["Product Endpoints"]
 )
 
+@router.get("",response_model=list[ProductResponse])
+def get_product():
     
-# @router.get("")
-# def price_query( 
-#             min_price: Annotated[float| None,Query(gt=0) ] = None, 
-#             max_price: Annotated[float| None, Query(gt=0)] = None
-#         ):
+    db = Localsession()
     
-#     db=Localsession()
+    products = db.query(Product).all()
     
-#     query = db.query(Product)  # Select * from Product  -> Hamma produclarni qaytaradi  
-    
-#     print(min_price,max_price)
-    
-#     if min_price is not None:    
-#         query = query.filter(Product.price >= min_price)   # WHERE min_price >= 100
-        
-        
-#     if max_price is not None:
-#         query = query.filter(Product.price <= max_price)  #WHERE max_price <= 200
-#         print(max_price)
-        
-#     result = []
-    
-#     products = query.all()   # all()  Birlashtiradi  min_price AND max_price:
-    
-#     for product in products:
-#         result.append({
-#             "id": product.id,
-#             "name":product.name,
-#             "price":product.price
-            
-#         })
-    
-#     return result
+    return products
 
 
-@router.get("")
+@router.get("/page",response_model=ProductListResponse)
 def get_page(
     page: Annotated[int,Query(ge=1)]=1,
-    limit: Annotated[int,Query(ge=10,le=100)]=10
+    limit: Annotated[int,Query(ge=10,le=100)]=10,
+    order_by: Literal['created_at','updated_at'] = "updated_at",
+    order_sort: Literal['asc','desc'] = 'desc'
 ):
     
     db = Localsession()
     
     offset = (page-1) * limit
     
+    if order_by == "updated_at":
+        if order_sort == "desc":
+            products = db.query(Product).order_by(desc(Product.updated_at)).offset(offset).limit(limit).all()
+            
+        else:
+            products = db.query(Product).order_by(Product.updated_at).offset(offset).limit(limit).all()
+
+    else:
+        if order_sort == "created_at":
+            products = db.query(Product).order_by(desc(Product.created_at)).offset(offset).limit(limit).all()
+            
+        else:
+            products = db.query(Product).order_by(Product.created_at).offset(offset).limit(limit).all()
+            
+    
     products = db.query(Product).offset(offset).limit(limit).all()
+    total = db.query(Product).count()
     
-    result = []
+    print(total)
+    pages = total // limit 
     
-    for product in products:
-        result.append({
-            "id": product.id,
-            "name": product.name,
-            "price": product.price
-        })
-    return result
+    return ProductListResponse(products=products,total=total,limit=limit,page=pages)
+
 
 feed_query = Query(min_length=5, max_length=30,description="Production name search")
 
@@ -92,7 +82,6 @@ def get_name(search: Annotated[str, feed_query]="all"):
                
     return result   
         
-
 
 @router.get("/{product_id}")
 def get_one_product(product_id: Annotated[int,Path(gt=0)]):
